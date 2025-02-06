@@ -10,7 +10,7 @@ import {
 	ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import * as dotenv from "dotenv";
+import { env } from "./config.js";
 import {
 	generateImage,
 	GenerateImageArgs,
@@ -58,23 +58,7 @@ import { runSSEServer } from "./sse.js";
 import { runStdioServer } from "./stdio.js";
 import { ResourceContext } from "./resources/resourceClient.js";
 
-dotenv.config();
-
-if (!process.env.IMAGE_STORAGE_DIRECTORY) {
-	if (process.platform === "win32") {
-		// Windows
-		process.env.IMAGE_STORAGE_DIRECTORY =
-			"C:\\Windows\\Temp\\mcp-server-stability-ai";
-	} else {
-		// macOS or Linux
-		process.env.IMAGE_STORAGE_DIRECTORY =
-			"/tmp/tadasant-mcp-server-stability-ai";
-	}
-}
-
-if (!process.env.STABILITY_AI_API_KEY) {
-	throw new Error("STABILITY_AI_API_KEY is a required environment variable");
-}
+console.log("Starting MCP server with the following config:", env);
 
 const server = new Server(
 	{
@@ -101,12 +85,10 @@ server.setRequestHandler(ListPromptsRequestSchema, async () => {
 
 server.setRequestHandler(GetPromptRequestSchema, async (request) => {
 	const { name, arguments: args } = request.params;
-
 	const prompt = prompts.find((p) => p.name === name);
 	if (!prompt) {
 		throw new Error(`Prompt not found: ${name}`);
 	}
-
 	const result = injectPromptTemplate(prompt.template, args);
 	return {
 		messages: [

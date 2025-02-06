@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import FormData from "form-data";
 import fs from "fs";
+
 interface GenerateImageCoreOptions {
 	aspectRatio?:
 		| "16:9"
@@ -33,6 +34,10 @@ interface GenerateImageCoreOptions {
 		| "pixel-art"
 		| "tile-texture";
 	outputFormat?: "png" | "jpeg" | "webp";
+	width?: number;
+	height?: number;
+	steps?: number;
+	guidanceScale?: number;
 }
 
 interface OutpaintOptions {
@@ -117,6 +122,17 @@ interface ControlStructureOptions {
 	outputFormat?: "png" | "jpeg" | "webp";
 }
 
+function handleAxiosError(error: any): never {
+	if (axios.isAxiosError(error) && error.response) {
+		const data = error.response.data;
+		if (error.response.status === 400) {
+			throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
+		}
+		throw new Error(`API error (${error.response.status}): ${JSON.stringify(data)}`);
+	}
+	throw error;
+}
+
 export class StabilityAiApiClient {
 	private readonly apiKey: string;
 	private readonly baseUrl = "https://api.stability.ai";
@@ -176,16 +192,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -215,16 +222,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -247,16 +245,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -306,16 +295,7 @@ export class StabilityAiApiClient {
 				}
 			}
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -348,16 +328,7 @@ export class StabilityAiApiClient {
 			// Poll for the result
 			return await this.fetchGenerationResult(generationId);
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -386,16 +357,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -423,16 +385,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -488,16 +441,7 @@ export class StabilityAiApiClient {
 			// Poll for the result
 			return await this.fetchGenerationResult(generationId);
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -529,16 +473,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 
@@ -567,16 +502,7 @@ export class StabilityAiApiClient {
 			const base64Image = response.data.image;
 			return { base64Image };
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response) {
-				const data = error.response.data;
-				if (error.response.status === 400) {
-					throw new Error(`Invalid parameters: ${data.errors.join(", ")}`);
-				}
-				throw new Error(
-					`API error (${error.response.status}): ${JSON.stringify(data)}`
-				);
-			}
-			throw error;
+			handleAxiosError(error);
 		}
 	}
 }
