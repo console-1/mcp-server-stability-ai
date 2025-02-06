@@ -122,6 +122,37 @@ interface ControlStructureOptions {
 	outputFormat?: "png" | "jpeg" | "webp";
 }
 
+// New interfaces for Video and 3D generation options
+interface GenerateVideoOptions {
+	prompt: string;
+	negativePrompt?: string;
+	videoLength: number; // length in seconds
+	fps: number;
+	width?: number;
+	height?: number;
+	steps?: number;
+	guidanceScale?: number;
+	seed?: number;
+	cameraPosition?: { x: number; y: number; z: number };
+	cameraAngle?: { pitch: number; yaw: number; roll: number };
+	outputFormat?: "mp4" | "webm";
+}
+
+interface Generate3DOptions {
+	prompt: string;
+	negativePrompt?: string;
+	width?: number;
+	height?: number;
+	steps?: number;
+	guidanceScale?: number;
+	seed?: number;
+	cameraView?: { 
+		position: { x: number; y: number; z: number }; 
+		target: { x: number; y: number; z: number };
+	};
+	outputFormat?: "obj" | "gltf" | "fbx";
+}
+
 function handleAxiosError(error: any): never {
 	if (axios.isAxiosError(error) && error.response) {
 		const data = error.response.data;
@@ -501,6 +532,65 @@ export class StabilityAiApiClient {
 			);
 			const base64Image = response.data.image;
 			return { base64Image };
+		} catch (error) {
+			handleAxiosError(error);
+		}
+	}
+
+	// New method to generate video using Stability AI Video Generation API
+	async generateVideo(
+		options: GenerateVideoOptions
+	): Promise<{ base64Video: string }> {
+		const payload = {
+			prompt: options.prompt,
+			output_format: options.outputFormat || "mp4",
+			video_length: options.videoLength,
+			fps: options.fps,
+			width: options.width,
+			height: options.height,
+			steps: options.steps,
+			guidance_scale: options.guidanceScale,
+			seed: options.seed,
+			camera_position: options.cameraPosition,
+			camera_angle: options.cameraAngle,
+			negative_prompt: options.negativePrompt,
+		};
+
+		try {
+			const response = await this.axiosClient.postForm(
+				`${this.baseUrl}/v2beta/stable-video/generate`,
+				axios.toFormData(payload, new FormData())
+			);
+			// Assume the API returns a base64 encoded video in response.data.video
+			return { base64Video: response.data.video };
+		} catch (error) {
+			handleAxiosError(error);
+		}
+	}
+
+	// New method to generate 3D content using Stability AI 3D Generation API
+	async generate3D(
+		options: Generate3DOptions
+	): Promise<{ base643DModel: string }> {
+		const payload = {
+			prompt: options.prompt,
+			output_format: options.outputFormat || "obj",
+			width: options.width,
+			height: options.height,
+			steps: options.steps,
+			guidance_scale: options.guidanceScale,
+			seed: options.seed,
+			camera_view: options.cameraView,
+			negative_prompt: options.negativePrompt,
+		};
+
+		try {
+			const response = await this.axiosClient.postForm(
+				`${this.baseUrl}/v2beta/stable-3d/generate`,
+				axios.toFormData(payload, new FormData())
+			);
+			// Assume the API returns a base64 encoded 3D model in response.data.model
+			return { base643DModel: response.data.model };
 		} catch (error) {
 			handleAxiosError(error);
 		}
